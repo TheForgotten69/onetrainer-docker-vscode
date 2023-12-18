@@ -1,0 +1,26 @@
+#!/usr/bin/env expect
+
+# Set infinite timeout for expect
+set timeout -1
+
+# Check for presence of the RUNPOD_POD_ID environment variable
+if { ![info exists env(RUNPOD_POD_ID)] } {
+    puts "Error: RUNPOD_POD_ID environment variable is not set."
+    exit 1
+}
+set runpod_pod_id $env(RUNPOD_POD_ID)
+
+# Spawn the code-server process with necessary arguments
+spawn ./code tunnel --accept-server-license-terms --random-name --no-sleep --verbose
+
+# Automate responses to code-server prompts
+expect {
+    -re {How would you like to log in to Visual Studio Code?} {
+         send -- "\033\[B"
+         send -- "\r"
+        exp_continue
+    }
+    eof {
+        puts "Finished interacting with code-server."
+    }
+}
